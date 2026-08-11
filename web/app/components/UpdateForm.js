@@ -46,7 +46,6 @@ export default function UpdateForm({ auth, onPosted }) {
         required
         disabled={isPosting}
       />
-
       <div className="update-form-row">
         <select
           value={status}
@@ -59,19 +58,18 @@ export default function UpdateForm({ auth, onPosted }) {
             </option>
           ))}
         </select>
-
         <button type="submit" disabled={isPosting}>
           {isPosting ? (
-          <>
-            <span className="spinner" aria-hidden="true" />
-            Posting...
-          </>
+            <>
+              <span className="spinner" aria-hidden="true" />
+              Posting...
+            </>
           ) : (
             "Post update"
           )}
         </button>
+        
       </div>
-
       {error && <p className="error">{error}</p>}
     </form>
   );
