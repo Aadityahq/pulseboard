@@ -13,8 +13,8 @@ const customJestConfig = {
   },
 
   // Ignore Next.js build output, including standalone builds,
-  // to avoid duplicate-module / naming-collision warnings when
-  // running Jest after `next build`.
+  // to avoid duplicate-module / naming collision warnings when
+  // running Jest after 'next build'.
   modulePathIgnorePatterns: ["<rootDir>/.next/"],
 };
 
