@@ -75,6 +75,10 @@ export default function UpdateCard({ update, auth, onUpdated, onDeleted }) {
 
   const reactionGroups = groupReactions(update.reactions || []);
 
+  const visibleReactions = [
+    ...new Set([...REACTION_OPTIONS, ...Object.keys(reactionGroups)]),
+  ];
+
   useEffect(() => {
     setEditText(update.text);
     setEditStatus(update.status);
@@ -219,7 +223,7 @@ export default function UpdateCard({ update, auth, onUpdated, onDeleted }) {
 
         <div className="update-actions">
           <div className="reactions">
-            {REACTION_OPTIONS.map((emoji) => {
+            {visibleReactions.map((emoji) => {
               const count = reactionGroups[emoji] || 0;
 
               const myReaction = auth

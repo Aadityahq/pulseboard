@@ -107,7 +107,7 @@ describe("UpdateCard", () => {
     expect(timeElement).toHaveAttribute("datetime", createdAt);
   });
 
-  it("does not show reaction buttons when logged out", () => {
+  it("shows disabled reaction buttons when logged out", () => {
     render(<UpdateCard update={update} auth={null} onUpdated={() => {}} />);
 
     expect(screen.getByRole("button", { name: /👍 1/i })).toBeDisabled();
