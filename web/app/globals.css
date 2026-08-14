@@ -390,7 +390,7 @@ section {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  border: 1px solid rgba(148, 163, 184, 0.28);
+  border: 1px solid var(--control-border);
   background: var(--reaction-button-bg);
   border-radius: 999px;
   padding: 0.35rem 0.8rem;
@@ -433,6 +433,11 @@ section {
   cursor: pointer;
 }
 
+.delete-btn:focus-visible {
+  outline: 2px solid var(--focus-indicator);
+  outline-offset: 2px;
+}
+
 .update-actions {
   display: flex;
   gap: 6px;
@@ -446,7 +451,7 @@ section {
 .hint {
   color: var(--text-hint);
   font-style: italic;
-}
+}c
 
 .error {
   color: var(--error-text);
@@ -571,8 +576,8 @@ section {
 
 .edit-btn:hover,
 .delete-btn:hover,
-.save-btn:hover,
-.cancel-btn:hover {
+.cancel-btn:hover,
+.save-btn:hover:not(:disabled) {
   box-shadow:
     0 2px 6px rgba(15, 23, 42, 0.08),
     0 8px 18px rgba(15, 23, 42, 0.08);
@@ -581,8 +586,8 @@ section {
 
 .edit-btn:active,
 .delete-btn:active,
-.save-btn:active,
-.cancel-btn:active {
+.cancel-btn:active,
+.save-btn:active:not(:disabled) {
   transform: scale(0.97);
   box-shadow:
     0 1px 3px rgba(15, 23, 42, 0.08),
@@ -591,8 +596,15 @@ section {
 
 /* Reaction button style */
 .reaction-button:hover:not(:disabled) {
-  background: #f9fafb;
-  box-shadow: 0 3px 6px rgba(15, 23, 42, 0.12);
+  background-color: color-mix(
+    in srgb,
+    var(--reaction-button-bg) 92%,
+    var(--control-border)
+  );
+  box-shadow:
+    0 2px 6px rgba(15, 23, 42, 0.08),
+    0 8px 18px rgba(15, 23, 42, 0.08);
+  transform: translateY(-1px);
 }
 
 .reaction-button:active:not(:disabled) {
