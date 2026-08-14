@@ -451,7 +451,7 @@ section {
 .hint {
   color: var(--text-hint);
   font-style: italic;
-}c
+}
 
 .error {
   color: var(--error-text);
