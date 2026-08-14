@@ -83,6 +83,18 @@ describe("POST /api/updates", () => {
     expect(res.status).toBe(400);
   });
 
+  it("rejects text longer than 1000 characters", async () => {
+    const res = await request(app)
+      .post("/api/updates")
+      .set("Authorization", `Bearer ${token}`)
+      .send({ text: "a".repeat(1001), status: "done" });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error).toBe(
+      "text must be 1000 characters or fewer",
+    );
+  });
+
   it("rate limits after 15 posts in a window", async () => {
     const makeRequest = () =>
       request(app)
@@ -478,6 +490,25 @@ describe("DELETE /api/updates/:id/reactions/:reactionId", () => {
 });
 
 describe("PATCH /api/updates/:id", () => {
+  it("rejects text longer than 1000 characters", async () => {
+    const createRes = await request(app)
+      .post("/api/updates")
+      .set("Authorization", `Bearer ${token}`)
+      .send({ text: "Valid update", status: "on-track" });
+
+    const updateId = createRes.body.update._id;
+
+    const res = await request(app)
+      .patch(`/api/updates/${updateId}`)
+      .set("Authorization", `Bearer ${token}`)
+      .send({ text: "a".repeat(1001) });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error).toBe(
+      "text must be 1000 characters or fewer",
+    );
+  });
+
   it("allows the author to edit their own update", async () => {
     const createRes = await request(app)
       .post("/api/updates")

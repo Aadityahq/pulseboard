@@ -109,6 +109,12 @@ router.patch("/:id", requireAuth, async (req, res) => {
         });
       }
 
+      if (text.length > 1000) {
+        return res.status(400).json({
+          error: "text must be 1000 characters or fewer",
+        });
+      }
+
       update.text = text.trim();
     }
 
@@ -158,6 +164,12 @@ router.post("/", requireAuth, createUpdateLimiter, checkRole("LEAD", "MEMBER"), 
       return res
         .status(400)
         .json({ error: "text is required and cannot be empty" });
+    }
+
+    if (text.length > 1000) {
+      return res
+        .status(400)
+        .json({ error: "text must be 1000 characters or fewer" });
     }
 
     if (!status || !STATUS_VALUES.includes(status)) {
