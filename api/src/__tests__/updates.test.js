@@ -273,7 +273,6 @@ describe("GET /api/updates", () => {
     expect(res.status).toBe(200);
     expect(res.body.updates).toHaveLength(1);
     expect(res.body.updates[0].tags[0]).toBe("frontend");
-
   });
 
   it("filters by q", async () => {
@@ -416,6 +415,41 @@ describe("GET /api/updates/leaderboard", () => {
 
     expect(res.status).toBe(200);
     expect(res.body.leaderboard).toEqual([]);
+  });
+
+  it("includes updates inside the requested window and excludes older updates", async () => {
+    const recentUpdate = await request(app)
+      .post("/api/updates")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        text: "Recent update",
+        status: "on-track",
+      });
+
+    const oldUpdate = await request(app)
+      .post("/api/updates")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        text: "Old update",
+        status: "on-track",
+      });
+
+    await Update.collection.updateOne(
+      { _id: new mongoose.Types.ObjectId(oldUpdate.body.update._id) },
+      {
+        $set: {
+          createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+        },
+      },
+    );
+
+    const res = await request(app).get("/api/updates/leaderboard?days=1");
+
+    expect(res.status).toBe(200);
+    expect(res.body.leaderboard).toHaveLength(1);
+
+    expect(res.body.leaderboard[0].updateCount).toBe(1);
+    expect(res.body.leaderboard[0].author.displayName).toBe("Author");
   });
 });
 
