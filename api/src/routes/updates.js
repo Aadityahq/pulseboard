@@ -1,6 +1,5 @@
 const express = require("express");
 const Update = require("../models/Update");
-const User = require("../models/User");
 const { STATUS_VALUES } = require("../models/Update");
 const rateLimit = require("express-rate-limit");
 const { requireAuth, checkRole } = require("../middleware/auth");
