@@ -1,5 +1,6 @@
 const express = require("express");
 const Update = require("../models/Update");
+const User = require("../models/User");
 const { STATUS_VALUES } = require("../models/Update");
 const rateLimit = require("express-rate-limit");
 const { requireAuth, checkRole } = require("../middleware/auth");
@@ -72,6 +73,75 @@ router.get("/", async (req, res) => {
     return res.json({ updates: filterUpdates });
   } catch (err) {
     return res.status(500).json({ error: "Failed to fetch updates" });
+  }
+});
+
+// GET /api/updates/leaderboard?days=7
+router.get("/leaderboard", async (req, res) => {
+  try {
+    const days = req.query.days === undefined ? 7 : Number(req.query.days);
+
+    if (!Number.isFinite(days) || days <= 0) {
+      return res.status(400).json({
+        error: "days must be a positive number",
+      });
+    }
+
+    const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+
+    const leaderboard = await Update.aggregate([
+      {
+        $match: {
+          createdAt: {
+            $gte: since,
+            $lte: new Date(),
+          },
+        },
+      },
+      {
+        $group: {
+          _id: "$author",
+          updateCount: { $sum: 1 },
+          reactionCount: {
+            $sum: { $size: "$reactions" },
+          },
+        },
+      },
+      {
+        $sort: {
+          updateCount: -1,
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "_id",
+          foreignField: "_id",
+          as: "author",
+        },
+      },
+      {
+        $unwind: "$author",
+      },
+      {
+        $project: {
+          _id: 0,
+          author: {
+            _id: "$author._id",
+            displayName: "$author.displayName",
+            email: "$author.email",
+          },
+          updateCount: 1,
+          reactionCount: 1,
+        },
+      },
+    ]);
+
+    return res.json({ leaderboard });
+  } catch (err) {
+    return res.status(500).json({
+      error: "Failed to fetch leaderboard",
+    });
   }
 });
 
