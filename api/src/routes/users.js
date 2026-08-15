@@ -8,22 +8,19 @@ const router = express.Router();
 // returns a list of all users
 router.get("/", requireAuth, async (req, res) => {
   try {
-    const { _id, displayName, role } = req.query;
-    const filter = {};
-
-    if (_id) {
-        filter._id = _id;
-    }
-
-    const users = await User.find(filter).select("_id displayName role");
-
-    return res.status(200).json({ users });
+    const users = await User.find().select("_id displayName role");
+    return res.status(200).json({ 
+        users: users.map(({ _id, displayName, role }) => ({
+            id: _id,
+            displayName,
+            role,
+        })),
+    });
     } catch (err) {
         return res.status(500).json({
             error: err.message
         })
     }
-       
 });
 
 module.exports = router;
