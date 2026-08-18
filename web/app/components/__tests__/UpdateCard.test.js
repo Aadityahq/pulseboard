@@ -104,7 +104,8 @@ describe("UpdateCard", () => {
     render(<UpdateCard update={ {...update, author: { ...update.author, displayName: "Amina Fatima Yusuf"} }} auth={null} onUpdated={() => {}}/>);
 
     expect(screen.getByText("AF")).toBeInTheDocument();
-    
+  });
+
   it("renders script tags in update text as literal text", () => {
     const maliciousText = "<script>window.__xss=true</script>";
 
