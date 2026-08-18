@@ -197,6 +197,23 @@ export default function UpdateCard({ update, auth, onUpdated, onDeleted }) {
     }
   }
 
+  function getAuthorInitials(update) {
+    const authorName = update.author?.displayName;
+
+    if (!authorName) {
+      return "U" // U is for Unknown
+    }
+
+    const initials = authorName
+    .split(" ")
+    .map(word => word.slice(0, 1))
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+
+    return initials;
+  }
+
   return (
     <article className={`update-card status-${update.status}`}>
       <header>
@@ -229,6 +246,9 @@ export default function UpdateCard({ update, auth, onUpdated, onDeleted }) {
                 </>
               )}
             </div>
+          </div>
+          <div className="initials-badge">
+            {getAuthorInitials(update)}
           </div>
         </div>
         {isEditing ? (
