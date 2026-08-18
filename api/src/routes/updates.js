@@ -453,6 +453,21 @@ router.post(
           return [];
         }
 
+        const maxTags = 10;
+        const maxTagLength = 30;
+
+        if (tags.length > maxTags) {
+          return {
+            error: `Maximum ${maxTags} tags are allowed.`,
+          };
+        }
+
+        if (tags.some((tag) => typeof tag !== "string" || tag.length > maxTagLength)) {
+          return {
+            error: `Maximum ${maxTagLength} characters are allowed for a tag.`,
+          };
+        }
+
         return [
           ...new Set(
             tags
@@ -462,12 +477,18 @@ router.post(
         ];
       }
 
+      const validatedTags = normalizeTags(tags);
+
+      if (validatedTags?.error) {
+        return res.status(400).json({ error: validatedTags.error });
+      }
+
       const update = await Update.create({
         author: req.user.id,
         text: text.trim(),
         status,
         visibility: visibility || "team",
-        tags: normalizeTags(tags),
+        tags: validatedTags,
       });
 
       const populated = await update.populate([
