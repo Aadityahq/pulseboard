@@ -95,13 +95,31 @@ describe("UpdateCard", () => {
   });
 
   it("renders the initials badge for a one word author name", () => {
-    render(<UpdateCard update={ {...update, author: { ...update.author, displayName: "Amina"} }} auth={null} onUpdated={() => {}}/>);
+    render(
+      <UpdateCard
+        update={{
+          ...update,
+          author: { ...update.author, displayName: "Amina" },
+        }}
+        auth={null}
+        onUpdated={() => {}}
+      />,
+    );
 
     expect(screen.getByText("A")).toBeInTheDocument();
   });
 
   it("renders the initials badge for a multi-word author name", () => {
-    render(<UpdateCard update={ {...update, author: { ...update.author, displayName: "Amina Fatima Yusuf"} }} auth={null} onUpdated={() => {}}/>);
+    render(
+      <UpdateCard
+        update={{
+          ...update,
+          author: { ...update.author, displayName: "Amina Fatima Yusuf" },
+        }}
+        auth={null}
+        onUpdated={() => {}}
+      />,
+    );
 
     expect(screen.getByText("AF")).toBeInTheDocument();
   });
@@ -420,5 +438,21 @@ describe("UpdateCard", () => {
     expect(screen.getByRole("button", { name: "Cancel" })).toBeInTheDocument();
 
     expect(onUpdated).not.toHaveBeenCalled();
+  });
+
+  it("Copies the link to the correct item when the copy link button is pressed", async () => {
+    Object.defineProperty(navigator, "clipboard", {
+      value: { writeText: jest.fn() },
+      writable: true,
+    });
+    navigator.clipboard.writeText = jest.fn().mockResolvedValue();
+    const URL = process.env.NEXT_PUBLIC_URL || "http://localhost:3000";
+    render(<UpdateCard update={update} auth={null}></UpdateCard>);
+    fireEvent.click(screen.getByRole("button", { name: "Copy Link" }));
+    await waitFor(() => {
+      expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
+        `${URL}/updates/${update._id}`,
+      );
+    });
   });
 });

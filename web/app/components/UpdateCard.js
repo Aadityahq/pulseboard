@@ -105,6 +105,7 @@ export default function UpdateCard({ update, auth, onUpdated, onDeleted }) {
   const [editText, setEditText] = useState(update.text);
   const [editStatus, setEditStatus] = useState(update.status);
   const [saving, setSaving] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
   const reactionGroups = groupReactions(update.reactions || []);
 
   const visibleReactions = [
@@ -153,8 +154,10 @@ export default function UpdateCard({ update, auth, onUpdated, onDeleted }) {
     setError(null);
 
     try {
-
-      const { update: updated } = await togglePin({ updateId: update._id, pinned: !update.pinned }, auth.token);
+      const { update: updated } = await togglePin(
+        { updateId: update._id, pinned: !update.pinned },
+        auth.token,
+      );
 
       if (!updated) {
         setError("Failed to pin the update. Please try again.");
@@ -164,7 +167,6 @@ export default function UpdateCard({ update, auth, onUpdated, onDeleted }) {
     } catch (err) {
       setError(err.message);
     }
-
   }
 
   async function handleDelete() {
@@ -217,20 +219,32 @@ export default function UpdateCard({ update, auth, onUpdated, onDeleted }) {
       setSaving(false);
     }
   }
+  async function handleCopyButton() {
+    const URL = process.env.NEXT_PUBLIC_URL || "http://localhost:3000";
+    navigator.clipboard.writeText(URL + "/updates/" + update._id).then(
+      () => {
+        setIsCopied(true);
+      },
+      () => {
+        alert("Something went wrong when copying to clipboard!");
+      },
+    );
+    setTimeout(() => setIsCopied(false), 5000);
+  }
 
   function getAuthorInitials(update) {
     const authorName = update.author?.displayName;
 
     if (!authorName) {
-      return "U" // U is for Unknown
+      return "U"; // U is for Unknown
     }
 
     const initials = authorName
-    .split(" ")
-    .map(word => word.slice(0, 1))
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
+      .split(" ")
+      .map((word) => word.slice(0, 1))
+      .join("")
+      .slice(0, 2)
+      .toUpperCase();
 
     return initials;
   }
@@ -268,9 +282,7 @@ export default function UpdateCard({ update, auth, onUpdated, onDeleted }) {
               )}
             </div>
           </div>
-          <div className="initials-badge">
-            {getAuthorInitials(update)}
-          </div>
+          <div className="initials-badge">{getAuthorInitials(update)}</div>
         </div>
         {isEditing ? (
           <div className="edit-field">
@@ -330,6 +342,25 @@ export default function UpdateCard({ update, auth, onUpdated, onDeleted }) {
             );
           })}
         </div>
+        {isCopied ? (
+          <button
+            type="button"
+            title="Copy this update's link"
+            className="copied-link-button"
+            onClick={() => handleCopyButton()}
+          >
+            Link Copied
+          </button>
+        ) : (
+          <button
+            type="button"
+            title="Copy this update's link"
+            className="copy-link-button"
+            onClick={() => handleCopyButton()}
+          >
+            Copy Link
+          </button>
+        )}
         {isEditing ? (
           <div className="edit-actions">
             <button
@@ -359,7 +390,8 @@ export default function UpdateCard({ update, auth, onUpdated, onDeleted }) {
                 Edit
               </button>
             )}
-              {(auth?.user?.role === "LEAD" || auth?.user?._id === update.author?._id) && (
+            {(auth?.user?.role === "LEAD" ||
+              auth?.user?._id === update.author?._id) && (
               <button
                 className="delete-btn"
                 type="button"

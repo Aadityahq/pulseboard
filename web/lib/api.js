@@ -53,7 +53,6 @@ export function listUpdates({
   page = 1,
   limit = 10,
 } = {}) {
-
   const params = new URLSearchParams();
 
   if (author) params.set("author", author);
@@ -66,6 +65,10 @@ export function listUpdates({
   const query = params.toString() ? `?${params.toString()}` : "";
 
   return request(`/api/updates${query}`);
+}
+
+export function getUpdateById(id, token) {
+  return request(`/api/updates/${id}`, { token });
 }
 
 export function createUpdate({ text, status, tags }, token) {
@@ -111,5 +114,5 @@ export function togglePin({ updateId, pinned }, token) {
     method: "PATCH",
     body: { pinned },
     token,
-  })
+  });
 }
